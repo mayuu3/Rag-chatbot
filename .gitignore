@@ -1,0 +1,19 @@
+# Python
+backend/venv/
+__pycache__/
+*.pyc
+
+# Environment variables
+.env
+
+# Node
+frontend/node_modules/
+
+# Data (local only)
+backend/data/faiss/
+backend/data/chunks/
+backend/data/uploads/
+backend/data/app.db
+
+# OS
+.DS_Store

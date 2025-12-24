@@ -1,0 +1,13 @@
+fastapi
+uvicorn[standard]
+python-multipart
+sqlmodel
+python-dotenv
+bcrypt
+pyjwt
+faiss-cpu
+transformers
+sentence-transformers
+aiofiles
+requests
+PyPDF2
