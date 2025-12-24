@@ -11,3 +11,4 @@ sentence-transformers
 aiofiles
 requests
 PyPDF2
+groq
