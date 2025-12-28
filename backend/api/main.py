@@ -37,9 +37,9 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
-DATA = Path(__file__).resolve().parents[1] / "data"
-UPLOADS = DATA / "uploads"
+UPLOADS = Path("/tmp/uploads")
 UPLOADS.mkdir(parents=True, exist_ok=True)
+
 
 # -----------------------------
 # AUTH
@@ -101,7 +101,8 @@ def process(token: str = Form(...)):
 
     user_dir = UPLOADS / str(user_id)
     if not user_dir.exists():
-        raise HTTPException(404, "No files uploaded")
+        return {"chunks": 0}
+
 
     chunks = []
     with get_session() as s:
@@ -190,7 +191,8 @@ def summarize(token: str = Form(...)):
     user = decode_token(token) if not token.startswith("guest_") else {"user_id": token}
     user_id = user["user_id"]
 
-    path = DATA / "chunks" / f"{user_id}.json"
+    path = Path("/tmp/chunks") / f"{user_id}.json"
+
     if not path.exists():
         return {"summary": "No documents"}
 
