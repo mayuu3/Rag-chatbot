@@ -62,6 +62,9 @@ def guest():
 # -----------------------------
 @app.post("/upload")
 async def upload(token: str = Form(...), file: UploadFile = File(...)):
+    if not file.filename.lower().endswith(".pdf"):
+        raise HTTPException(status_code=400, detail="Only PDF files are allowed")
+
     user = decode_token(token) if not token.startswith("guest_") else {"user_id": token}
     user_id = user["user_id"]
 
@@ -69,15 +72,24 @@ async def upload(token: str = Form(...), file: UploadFile = File(...)):
     user_dir.mkdir(parents=True, exist_ok=True)
 
     file_path = user_dir / file.filename
-    with open(file_path, "wb") as f:
-        shutil.copyfileobj(file.file, f)
+
+    try:
+        with open(file_path, "wb") as f:
+            shutil.copyfileobj(file.file, f)
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"File save failed: {str(e)}")
 
     with get_session() as s:
-        doc = Document(user_id=str(user_id), filename=file.filename, filepath=str(file_path))
+        doc = Document(
+            user_id=str(user_id),
+            filename=file.filename,
+            filepath=str(file_path)
+        )
         s.add(doc)
         s.commit()
 
-    return {"status": "uploaded"}
+    return {"status": "uploaded", "filename": file.filename}
+
 
 # -----------------------------
 # PROCESS DOCUMENTS (CHUNK + FAISS)
