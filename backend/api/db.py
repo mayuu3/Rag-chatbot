@@ -1,8 +1,11 @@
 from sqlmodel import SQLModel, create_engine, Session, Field
 from datetime import datetime
 from typing import Optional
+from pathlib import Path
 
-DATABASE_URL = "sqlite:///./app.db"
+BASE_DIR = Path(__file__).resolve().parents[1]
+DATABASE_URL = f"sqlite:///{BASE_DIR}/data/app.db"
+
 
 engine = create_engine(
     DATABASE_URL,

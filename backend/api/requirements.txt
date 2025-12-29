@@ -12,3 +12,4 @@ aiofiles
 requests
 PyPDF2
 groq
+python-multipart>=0.0.6
