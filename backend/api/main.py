@@ -23,6 +23,23 @@ DATA = Path("/tmp/data")
 UPLOADS = DATA / "uploads"
 UPLOADS.mkdir(parents=True, exist_ok=True)
 
+from api.auth import register_user, login_user
+
+@app.post("/register")
+def register(
+    name: str = Form(...),
+    email: str = Form(...),
+    password: str = Form(...)
+):
+    return register_user(name, email, password)
+
+
+@app.post("/login")
+def login(
+    email: str = Form(...),
+    password: str = Form(...)
+):
+    return login_user(email, password)
 
 @app.post("/upload")
 async def upload(token: str = Form(...), file: UploadFile = File(...)):
@@ -44,7 +61,7 @@ def process(token: str = Form(...)):
         reader = PdfReader(pdf)
         text = "\n".join([p.extract_text() or "" for p in reader.pages])
 
-        for c in chunk_text(text):
+        for c in chunk_text(text)[:40]:
             chunks.append({"text": c})
 
     if chunks:
