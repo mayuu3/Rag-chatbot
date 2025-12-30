@@ -1,4 +1,4 @@
-import os, shutil, json
+import os, shutil
 from pathlib import Path
 from dotenv import load_dotenv
 from fastapi import FastAPI, UploadFile, File, Form
@@ -7,10 +7,15 @@ from PyPDF2 import PdfReader
 
 from api.rag import chunk_text, build_faiss_index, retrieve
 from api.llm import generate_answer
+from api.auth import register_user, login_user
+from api.db import init_db   # ✅ ADDED
 
 load_dotenv()
 
 app = FastAPI()
+
+# ✅ INITIALIZE DATABASE (FIXES 500 ERROR)
+init_db()
 
 app.add_middleware(
     CORSMiddleware,
@@ -19,12 +24,13 @@ app.add_middleware(
     allow_headers=["*"]
 )
 
+# ✅ RENDER-SAFE STORAGE
 DATA = Path("/tmp/data")
 UPLOADS = DATA / "uploads"
 UPLOADS.mkdir(parents=True, exist_ok=True)
 
-from api.auth import register_user, login_user
 
+# ---------- AUTH ----------
 @app.post("/register")
 def register(
     name: str = Form(...),
@@ -41,6 +47,8 @@ def login(
 ):
     return login_user(email, password)
 
+
+# ---------- UPLOAD ----------
 @app.post("/upload")
 async def upload(token: str = Form(...), file: UploadFile = File(...)):
     user_dir = UPLOADS / token
@@ -52,6 +60,8 @@ async def upload(token: str = Form(...), file: UploadFile = File(...)):
 
     return {"status": "uploaded", "filename": file.filename}
 
+
+# ---------- PROCESS ----------
 @app.post("/process")
 def process(token: str = Form(...)):
     user_dir = UPLOADS / token
@@ -69,6 +79,8 @@ def process(token: str = Form(...)):
 
     return {"chunks": len(chunks)}
 
+
+# ---------- CHAT ----------
 @app.post("/chat")
 def chat(token: str = Form(...), query: str = Form(...)):
     retrieved = retrieve(token, query)
