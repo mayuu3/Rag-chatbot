@@ -3,14 +3,13 @@ from datetime import datetime
 from typing import Optional
 from pathlib import Path
 
-BASE_DIR = Path(__file__).resolve().parents[1]
-DATABASE_URL = f"sqlite:///{BASE_DIR}/data/app.db"
-
+DATABASE_URL = "sqlite:////tmp/app.db"
 
 engine = create_engine(
     DATABASE_URL,
     connect_args={"check_same_thread": False}
 )
+
 
 class User(SQLModel, table=True):
     id: Optional[int] = Field(default=None, primary_key=True)
